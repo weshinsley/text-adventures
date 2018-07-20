@@ -1,5 +1,5 @@
 # text-adventures
-:crossed_swords::keyboard::bow_and_arrow: Old-fashioned text adventure engine
+:crossed_swords::keyboard::space_invader: Old-fashioned text adventure engine
 
 This repo will document the dubious efforts of me and Luke as we learn to write a text adventure engine, of the sort that software
 companies like Level 9, Infocom, Magnetic Scrolls and Scott Adams used to write around the 1980s. 
@@ -7,6 +7,6 @@ companies like Level 9, Infocom, Magnetic Scrolls and Scott Adams used to write 
 Objectives/progress:
 
 * One-word commands. Directions NORTH,EAST,SOUTH,WEST,UP,DOWN (N,E,S,W,U,D)  - DONE
-* INVENT (I) Inventory, and two-word commands: TAKE OBJECT, DROP OBJECT, EXAMINE OBJECT
+* INVENT (I) Inventory, and two-word commands: TAKE OBJECT, DROP OBJECT, EXAMINE OBJECT - DONE
 * Flags/variables which are updated by the above commands.
 * Allow above commands to be impossible if a certain flag/variable is not appropriately set.

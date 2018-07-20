@@ -17,5 +17,13 @@ public class Player {
   
   public void setLocation(Location L) { location = L; }
   public Location getLocation() { return location; }
-  public ArrayList<Item> carrying() { return carrying; } 
+  public ArrayList<Item> carrying() { return carrying; }
+  public void carry(Item I) { carrying.add(I); }
+  public void drop(Item I) { carrying.remove(I); }
+  
+  public int weightCarried() {
+    int total=0;
+    for (int i=0; i<carrying.size(); i++) total+=carrying.get(i).getWeight();
+    return total;
+  }
 }

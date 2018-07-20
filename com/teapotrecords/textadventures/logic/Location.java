@@ -12,9 +12,12 @@ public class Location {
   ArrayList<Link> links;
   
   //public int getId() { return id; }
+  public void addItem(Item I) { items.add(I); }
+  public void removeItem(Item I) { items.remove(I); }
   public void addLink(Link L) { links.add(L); }
   public String getName() { return name; }
   public String getDescription() { return description; }
+  public ArrayList<Item> getItems() { return items; }
   
   public Location(String name, String description, Adventure A) {
     this.name = name;

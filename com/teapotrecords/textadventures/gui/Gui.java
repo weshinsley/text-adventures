@@ -61,7 +61,8 @@ public class Gui extends JFrame {
   public Gui(Adventure A) {
     super();
     this.A = A;
-    setSize(new Dimension(600,400));
+    setSize(new Dimension(600,700));
+    setTitle(A.title());
     setResizable(false);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     getContentPane().setLayout(new BorderLayout());
@@ -77,7 +78,7 @@ public class Gui extends JFrame {
     jt_entry.setForeground(Color.BLUE);
     jt_entry.setPreferredSize(new Dimension(550,30));
     jt_entry.addKeyListener(eh);
-    je_main.setFocusable(true);
+    je_main.setFocusable(false);
     je_main.setFont(courier);
     je_main.setContentType("text/html");
     je_main.setEditable(false);
@@ -87,7 +88,7 @@ public class Gui extends JFrame {
     
     fm_main = je_main.getFontMetrics(new Font("Courier New", Font.PLAIN, 14));
     int hei = fm_main.getHeight();
-    for (int i=0; i<300/hei; i++) {
+    for (int i=0; i<(je_main.getHeight()-40)/hei; i++) {
       snippets.append("<span style=\"font-family:Courier New;font-size:14;color:#0000ff\">&nbsp;<br/></span>\n");
     }
     je_main.setText(snippets.toString());

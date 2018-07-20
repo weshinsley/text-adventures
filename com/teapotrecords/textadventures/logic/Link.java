@@ -15,5 +15,7 @@ public class Link {
  public static final byte DIR_WEST = 4;
  public static final byte DIR_UP = 5;
  public static final byte DIR_DOWN = 6;
+ public static final byte DIR_IN = 5;
+ public static final byte DIR_OUT = 6;
  
 }
