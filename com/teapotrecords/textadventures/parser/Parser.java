@@ -27,7 +27,12 @@ public class Parser {
   
   Item findItem(String[] bits, int first_index) {
     StringBuffer sb = new StringBuffer();
-    for (int i=first_index; i<bits.length; i++) sb.append(bits[i]);
+    for (int i=first_index; i<bits.length; i++) {
+      if (bits[i].length()>0) {
+        sb.append(" "+bits[i]);
+      }
+    }
+    sb.deleteCharAt(0);
     ArrayList<Item> loc_items = A.me().getLocation().getItems();
     Item lookup = lookupItem(loc_items, sb.toString());
     if (lookup==null) {
