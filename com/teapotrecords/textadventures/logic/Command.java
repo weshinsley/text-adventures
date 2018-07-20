@@ -58,11 +58,20 @@ public class Command {
   
   public static void movePlayer(Adventure A, byte link_dir) {
     Location L = A.me().getLocation();
-    if (L.canMove(link_dir)) {
-      A.me().setLocation(L.travel(link_dir));
-      roomInfo(A);
-    } else {
+    Link LL = L.getLink(link_dir);
+    if (LL==null) {
       A.G().echoText("You can't go in that direction", "#000000");
+    } else {
+      boolean proceed = true;
+      ArrayList<LinkEvent> events = LL.getEvents();
+      for (int i=0; i<events.size(); i++) {
+        byte res = events.get(i).tryExecute();
+        if (res == LinkEvent.RESULT_FORBID) proceed=false; 
+      }
+      if (proceed) {
+        A.me().setLocation(L.travel(link_dir));
+        roomInfo(A);
+      }
     }
   }
   
@@ -104,6 +113,8 @@ public class Command {
       A.G().echoText("You are already carrying that.", "#000000");
     } else if (A.me().getLocation().getItems().indexOf(I)==-1) {
       A.G().echoText("You can't find that.", "#000000");
+    } else if (I.getWeight()>1000) {
+      A.G().echoText(A.specialMessage(I.getWeight()),"#000000");
     } else if (A.me().weightCarried()+I.getWeight() > A.me().max_weight) {
       A.G().echoText("That is too much to carry.", "#000000");
     } else {

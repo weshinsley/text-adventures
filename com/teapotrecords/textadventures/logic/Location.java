@@ -28,22 +28,23 @@ public class Location {
     A.addLocation(this);
   };
   
-  public boolean canMove(byte direction) {
-    boolean can_move = false;
+  public Link getLink(byte direction) {
+    Link result = null;
     for (int i=0; i<links.size(); i++) {
-      if (links.get(i).direction==direction) { 
-        can_move = true;
+      if (links.get(i).getDirection()==direction) { 
+        result = links.get(i);
         i = links.size();
       }
     }
-    return can_move;
+    return result;
   }
+  
   
   public Location travel(byte direction) {
     Location dest = null;
     for (int i=0; i<links.size(); i++) {
-      if (links.get(i).direction==direction) {
-        dest = links.get(i).destination;
+      if (links.get(i).getDirection()==direction) {
+        dest = links.get(i).getDestination();
       }
     }
     return dest;
