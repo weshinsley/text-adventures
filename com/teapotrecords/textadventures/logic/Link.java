@@ -1,13 +1,8 @@
 package com.teapotrecords.textadventures.logic;
 
-import java.util.ArrayList;
-
 public class Link {
  private Location destination;
  private byte direction;
- private ArrayList<LinkEvent> events = new ArrayList<LinkEvent>();
- 
- public ArrayList<LinkEvent> getEvents() { return events; }
  public byte getDirection() { return direction; }
  public Location getDestination() { return destination; }
  public void setDirection(byte b) { direction = b; }
@@ -18,8 +13,6 @@ public class Link {
    direction=d;
  }
  
- public void addEvent(LinkEvent le) { events.add(le); }
- public void copyEvents(Link l) { events = l.getEvents(); };
  
  public static final byte DIR_NORTH = 1;
  public static final byte DIR_EAST = 2;

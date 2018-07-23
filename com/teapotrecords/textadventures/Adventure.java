@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 
 import com.teapotrecords.textadventures.gui.Gui;
-import com.teapotrecords.textadventures.logic.Command;
+import com.teapotrecords.textadventures.logic.CP;
 import com.teapotrecords.textadventures.logic.Flag;
 import com.teapotrecords.textadventures.logic.FlagCondition;
+import com.teapotrecords.textadventures.logic.Intercept;
 import com.teapotrecords.textadventures.logic.Item;
 import com.teapotrecords.textadventures.logic.Link;
-import com.teapotrecords.textadventures.logic.LinkEvent;
 import com.teapotrecords.textadventures.logic.Location;
 import com.teapotrecords.textadventures.logic.Player;
 import com.teapotrecords.textadventures.parser.Parser;
@@ -20,6 +20,7 @@ public class Adventure {
   private Gui G;
   private Parser P;
   private Player me;
+  private CP C;
   private String intro_text;
   private String title;
   private ArrayList<Location> locations = new ArrayList<Location>();
@@ -32,6 +33,7 @@ public class Adventure {
   public Player me() { return me; }
   public Parser P() { return P; }
   public Gui G() { return G; }
+  public CP C() { return C; }
   public void addLocation(Location L) { locations.add(L); }
   public void addItem(Item I) { items.add(I); }
   
@@ -57,6 +59,7 @@ public class Adventure {
     
     P = new Parser(this);
     G = new Gui(this);
+    C = new CP();
     me = new Player();
     intro_text = "Welcome to this text adventure! In here we need to put the plot, the background, instructions and all of that stuff...";
         
@@ -83,32 +86,41 @@ public class Adventure {
     l1.addLink(l1l2);
     Flag F_POT_PLANT = Flag.getFlag(this, "F_POT_PLANT", 0);
     
-    FlagCondition FC_POT_PLANT_0 = new FlagCondition(F_POT_PLANT, FlagCondition.EQUAL, Flag.getFlag(this, "ZERO",0)); 
-    l1l2.addEvent(new LinkEvent(FC_POT_PLANT_0, LinkEvent.PRINT, 
-        "A pot-plant suddenly appears, blocking your path.",0, this));
-    l1l2.addEvent(new LinkEvent(FC_POT_PLANT_0, LinkEvent.FORBID_MOVE,"",0,this));
-    l1l2.addEvent(new LinkEvent(FC_POT_PLANT_0, LinkEvent.ADD_ITEM_TO_ROOM, "POT-PLANT", 0, this));
+    FlagCondition FC_POT_PLANT_0 = new FlagCondition(F_POT_PLANT, 
+                                       FlagCondition.EQUAL, Flag.getFlag(this, "ZERO",0));
     
-    FlagCondition FC_POT_PLANT_1 = new FlagCondition(F_POT_PLANT, FlagCondition.EQUAL, Flag.getFlag(this, "ONE",1));
-    l1l2.addEvent(new LinkEvent(FC_POT_PLANT_1, LinkEvent.PRINT, 
-        "The pot-plant stands in the way.", 0, this));
-    l1l2.addEvent(new LinkEvent(FC_POT_PLANT_1, LinkEvent.PRINT_RANDOM, 
-        "It maintains a stony silence.:It does absolutely nothing. Menacingly.:It waits, unmoved, not even looking at you.", 0, this));
-    l1l2.addEvent(new LinkEvent(FC_POT_PLANT_1, LinkEvent.FORBID_MOVE, "",0,this));
-    l1l2.addEvent(new LinkEvent(FC_POT_PLANT_0, LinkEvent.SET_FLAG, "F_POT_PLANT", 1, this));
+    C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, FC_POT_PLANT_0,  
+        Intercept.PRINT, "A pot-plant suddenly appears, blocking your path.",0,this);
+    
+    C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, FC_POT_PLANT_0,
+        Intercept.FORBID_MOVE, "", 0, this);
+    
+    C.addIntercept(l1,  new short[] {CP.GO_SOUTH, CP.GO_OUT}, FC_POT_PLANT_0, 
+        Intercept.ADD_ITEM_TO_ROOM, "POT-PLANT", 0, this);
+        
+    FlagCondition FC_POT_PLANT_1 = new FlagCondition(F_POT_PLANT, 
+                                       FlagCondition.EQUAL, Flag.getFlag(this, "ONE",1));
+    
+    C.addIntercept(l1,  new short[] {CP.GO_SOUTH, CP.GO_OUT},  FC_POT_PLANT_1,
+        Intercept.PRINT, "The pot-plat stands in your way.", 0, this);
+    
+    C.addIntercept(l1,  new short[] {CP.GO_SOUTH, CP.GO_OUT},  FC_POT_PLANT_1,
+        Intercept.PRINT_SEQUENCE, 
+        "It maintains a stony silence.:It does absolutely nothing. Menacingly.:It waits, unmoved, not even looking at you.",
+        0,this);
+    
+    C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, FC_POT_PLANT_1,
+        Intercept.FORBID_MOVE, "", 0, this);
     
     
-    
-    
-    Link l1l2b = new Link(l2, Link.DIR_OUT);
-    l1.addLink(l1l2b);
-    l1l2b.copyEvents(l1l2);
-    
+    C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, FC_POT_PLANT_0,
+        Intercept.SET_FLAG, "F_POT_PLANT", 1, this);
+        
     l2.addLink(new Link(l1, Link.DIR_NORTH));
     l2.addLink(new Link(l1, Link.DIR_IN));
     
     me.setLocation(l1);
-    Command.roomInfo(this);
+    C.roomInfo(this);
     
     
   }

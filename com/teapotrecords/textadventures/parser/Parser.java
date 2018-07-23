@@ -3,7 +3,7 @@ package com.teapotrecords.textadventures.parser;
 import java.util.ArrayList;
 
 import com.teapotrecords.textadventures.Adventure;
-import com.teapotrecords.textadventures.logic.Command;
+import com.teapotrecords.textadventures.logic.CP;
 import com.teapotrecords.textadventures.logic.Item;
 
 public class Parser {
@@ -46,28 +46,28 @@ public class Parser {
   public void process(String s) {
     String[] bits = s.trim().toUpperCase().split("\\s+");
     if (bits.length==1) {
-      if (s.equals("E") || s.equals("EAST")) Command.execute(Command.GO_EAST, A);
-      else if (s.equals("W") || s.equals("WEST")) Command.execute(Command.GO_WEST, A); 
-      else if (s.equals("N") || s.equals("NORTH")) Command.execute(Command.GO_NORTH, A);
-      else if (s.equals("S") || s.equals("SOUTH")) Command.execute(Command.GO_SOUTH, A);
-      else if (s.equals("U") || s.equals("UP")) Command.execute(Command.GO_UP, A);
-      else if (s.equals("D") || s.equals("DOWN")) Command.execute(Command.GO_DOWN, A);
-      else if (s.equals("IN")) Command.execute(Command.GO_IN, A);
-      else if (s.equals("OUT")) Command.execute(Command.GO_OUT, A);
-      else if (s.equals("L") || s.equals("LOOK")) Command.execute(Command.SHOW_ROOM, A);
-      else if (s.equals("I") || s.startsWith("INVENT")) Command.execute(Command.INVENTORY, A);
+      if (s.equals("E") || s.equals("EAST")) A.C().execute(CP.GO_EAST, A);
+      else if (s.equals("W") || s.equals("WEST")) A.C().execute(CP.GO_WEST, A); 
+      else if (s.equals("N") || s.equals("NORTH")) A.C().execute(CP.GO_NORTH, A);
+      else if (s.equals("S") || s.equals("SOUTH")) A.C().execute(CP.GO_SOUTH, A);
+      else if (s.equals("U") || s.equals("UP")) A.C().execute(CP.GO_UP, A);
+      else if (s.equals("D") || s.equals("DOWN")) A.C().execute(CP.GO_DOWN, A);
+      else if (s.equals("IN")) A.C().execute(CP.GO_IN, A);
+      else if (s.equals("OUT")) A.C().execute(CP.GO_OUT, A);
+      else if (s.equals("L") || s.equals("LOOK")) A.C().execute(CP.SHOW_ROOM, A);
+      else if (s.equals("I") || s.startsWith("INVENT")) A.C().execute(CP.INVENTORY, A);
     } else {
       
       if ((bits[0].equals("GET")) || (bits[0].equals("TAKE"))) {
-        Command.execute(Command.PICK_UP_ITEM, findItem(bits,1), A);
+        A.C().execute(CP.PICK_UP_ITEM, findItem(bits,1), A);
       } else if ((bits[0].equals("PICK")) && (bits[1].equals("UP"))) {
-        Command.execute(Command.PICK_UP_ITEM, findItem(bits,2), A);
+        A.C().execute(CP.PICK_UP_ITEM, findItem(bits,2), A);
       } else if ((bits[0].equals("DROP")) && (bits[1].equals("ALL"))) {
-        Command.execute(Command.DROP_ALL,  A);
+        A.C().execute(CP.DROP_ALL,  A);
       } else if (bits[0].equals("DROP")) {
-        Command.execute(Command.DROP_ITEM, findItem(bits,1), A);
+        A.C().execute(CP.DROP_ITEM, findItem(bits,1), A);
       } else if ((bits[0].equals("LOOK")) || (bits[0].equals("EXAMINE"))) {
-        Command.execute(Command.EXAMINE_ITEM, findItem(bits,1), A);
+        A.C().execute(CP.EXAMINE_ITEM, findItem(bits,1), A);
       }
     }
   }

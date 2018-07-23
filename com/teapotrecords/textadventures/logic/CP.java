@@ -3,8 +3,8 @@ package com.teapotrecords.textadventures.logic;
 import java.util.ArrayList;
 
 import com.teapotrecords.textadventures.Adventure;
-
-public class Command {
+// CP = Command Processor, but life's too short to be typing that all over the place.
+public class CP {
   public static final short GO_WEST = 1;
   public static final short GO_EAST = 2;
   public static final short GO_NORTH = 3;
@@ -21,13 +21,25 @@ public class Command {
   public static final short INVENTORY = 13;
   public static final short DROP_ALL = 14;
   
+  private ArrayList<Intercept> intercepts = new ArrayList<Intercept>();
+  public ArrayList<Intercept> getIntercepts() { return intercepts; }
+  public void addIntercept(Intercept le) { intercepts.add(le); }
   
-  int action;
-  int object;
-  public Command(int i) {
-    action = i;
+  public void addIntercept(Location w, short com, FlagCondition c, byte a, String p, int i, 
+      Adventure adv) {
+    intercepts.add(new Intercept(w, com, c, a, p, i, adv));
   }
-  public static void addItemList(StringBuffer sb, ArrayList<Item> is) {
+  
+  public void addIntercept(Location w, short[] com, FlagCondition c, byte a, String p, int i, 
+      Adventure adv) {
+    for (int cc=0; cc<com.length; cc++) { 
+      intercepts.add(new Intercept(w, com[cc], c, a, p, i, adv));
+    }
+  }
+  
+  public CP() { }
+  
+  public void addItemList(StringBuffer sb, ArrayList<Item> is) {
     int count = is.size();
     sb.append(is.get(0).getLongName());
     int i=1;
@@ -39,7 +51,7 @@ public class Command {
     sb.append(".");
   }
   
-  public static void roomInfo(Adventure A) {
+  public void roomInfo(Adventure A) {
     A.G().echoText("", "#000000");
     A.G().echoText("<hr/>", "#000000");
     A.G().echoText(A.me().getLocation().getName(),"#ff0000");
@@ -56,26 +68,18 @@ public class Command {
     A.G().echoText("", "#000000");
   }
   
-  public static void movePlayer(Adventure A, byte link_dir) {
+  public void movePlayer(Adventure A, byte link_dir) {
     Location L = A.me().getLocation();
     Link LL = L.getLink(link_dir);
     if (LL==null) {
       A.G().echoText("You can't go in that direction", "#000000");
     } else {
-      boolean proceed = true;
-      ArrayList<LinkEvent> events = LL.getEvents();
-      for (int i=0; i<events.size(); i++) {
-        byte res = events.get(i).tryExecute();
-        if (res == LinkEvent.RESULT_FORBID) proceed=false; 
-      }
-      if (proceed) {
-        A.me().setLocation(L.travel(link_dir));
-        roomInfo(A);
-      }
+      A.me().setLocation(L.travel(link_dir));
+      roomInfo(A);
     }
   }
   
-  public static void invent(Adventure A) {
+  public void invent(Adventure A) {
     ArrayList<Item> items = A.me().carrying();
     int count = items.size();
     if (count==0) {
@@ -87,28 +91,48 @@ public class Command {
     }
   }
   
-  public static void execute(short command, Adventure A) {
-    if (command == GO_EAST) movePlayer(A, Link.DIR_EAST);
-    else if (command == GO_WEST) movePlayer(A, Link.DIR_WEST);
-    else if (command == GO_NORTH) movePlayer(A, Link.DIR_NORTH);
-    else if (command == GO_SOUTH) movePlayer(A, Link.DIR_SOUTH);
-    else if (command == GO_UP) movePlayer(A, Link.DIR_UP);
-    else if (command == GO_DOWN) movePlayer(A, Link.DIR_DOWN);
-    else if (command == GO_IN) movePlayer(A, Link.DIR_IN);
-    else if (command == GO_OUT) movePlayer(A, Link.DIR_OUT);
-    else if (command == SHOW_ROOM) roomInfo(A);
-    else if (command == INVENTORY) invent(A);
-    else if (command == DROP_ALL) dropAll(A);
+  public boolean findIntercept(Location loc, short command) {
+    boolean proceed = true;
+    for (int i=0; i<intercepts.size(); i++) {
+      Location L = intercepts.get(i).getLocation();
+      if ((L==null) || (L==loc)) {
+        short com = intercepts.get(i).getTriggerCommand();
+        if (com == command) {
+          byte res = intercepts.get(i).tryExecute();
+          if (res == Intercept.RESULT_FORBID) proceed=false;
+        
+        }
+      }
+    }
+    return proceed;
   }
   
-  public static void execute(short command, Item I, Adventure A) {
+  
+  public void execute(short command, Adventure A) {
+    boolean proceed = findIntercept(A.me().location, command);
+    if (proceed) {
+      if (command == GO_EAST) movePlayer(A, Link.DIR_EAST);
+      else if (command == GO_WEST) movePlayer(A, Link.DIR_WEST);
+      else if (command == GO_NORTH) movePlayer(A, Link.DIR_NORTH);
+      else if (command == GO_SOUTH) movePlayer(A, Link.DIR_SOUTH);
+      else if (command == GO_UP) movePlayer(A, Link.DIR_UP);
+      else if (command == GO_DOWN) movePlayer(A, Link.DIR_DOWN);
+      else if (command == GO_IN) movePlayer(A, Link.DIR_IN);
+      else if (command == GO_OUT) movePlayer(A, Link.DIR_OUT);
+      else if (command == SHOW_ROOM) roomInfo(A);
+      else if (command == INVENTORY) invent(A);
+      else if (command == DROP_ALL) dropAll(A);
+    }
+  }
+  
+  public void execute(short command, Item I, Adventure A) {
     if (command == PICK_UP_ITEM) takeItem(I, A);
     else if (command == DROP_ITEM) dropItem(I, A);
     else if (command == EXAMINE_ITEM) examineItem(I, A);
     
   }
   
-  public static void takeItem(Item I, Adventure A) {
+  public void takeItem(Item I, Adventure A) {
     if (A.me().carrying().indexOf(I)>=0) {
       A.G().echoText("You are already carrying that.", "#000000");
     } else if (A.me().getLocation().getItems().indexOf(I)==-1) {
@@ -125,7 +149,7 @@ public class Command {
     }
   }
   
-  public static void dropItem(Item I, Adventure A) {
+  public void dropItem(Item I, Adventure A) {
     if (A.me().carrying().indexOf(I)==-1) {
       A.G().echoText("You're not carrying that.", "#000000");
     } else {
@@ -135,7 +159,7 @@ public class Command {
     }
   }
   
-  public static void dropAll(Adventure A) {
+  public void dropAll(Adventure A) {
     if (A.me().carrying().size()==0) {
       A.G().echoText("You are not carrying anything.", "#000000");
     } else {
@@ -149,7 +173,7 @@ public class Command {
   }
 
   
-  public static void examineItem(Item I, Adventure A) {
+  public void examineItem(Item I, Adventure A) {
     if ((A.me().carrying().indexOf(I)>=0) || (A.me().getLocation().getItems().indexOf(I)>=0)) {
       A.G().echoText(I.getDetail(), "#000000");
     } else {
