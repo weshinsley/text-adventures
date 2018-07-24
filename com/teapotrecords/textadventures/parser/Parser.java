@@ -25,7 +25,7 @@ public class Parser {
     return result;
   }
   
-  Item findItem(String[] bits, int first_index) {
+  public Item findItem(String[] bits, int first_index) {
     StringBuffer sb = new StringBuffer();
     for (int i=first_index; i<bits.length; i++) {
       if (bits[i].length()>0) {
@@ -68,6 +68,8 @@ public class Parser {
         A.C().execute(CP.DROP_ITEM, findItem(bits,1), A);
       } else if ((bits[0].equals("LOOK")) || (bits[0].equals("EXAMINE"))) {
         A.C().execute(CP.EXAMINE_ITEM, findItem(bits,1), A);
+      } else if (bits[0].equals("MOVE") || (bits[0].equals("PUSH"))) {
+        A.C().execute(CP.MOVE_ITEM, findItem(bits,1), A);
       }
     }
   }

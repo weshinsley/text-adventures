@@ -20,20 +20,21 @@ public class CP {
   public static final short EXAMINE_ITEM = 12;
   public static final short INVENTORY = 13;
   public static final short DROP_ALL = 14;
+  public static final short MOVE_ITEM = 15;
   
   private ArrayList<Intercept> intercepts = new ArrayList<Intercept>();
   public ArrayList<Intercept> getIntercepts() { return intercepts; }
   public void addIntercept(Intercept le) { intercepts.add(le); }
   
-  public void addIntercept(Location w, short com, FlagCondition c, byte a, String p, int i, 
+  public void addIntercept(Location w, short com, Item obj, FlagCondition c, byte a, String p, int i, 
       Adventure adv) {
-    intercepts.add(new Intercept(w, com, c, a, p, i, adv));
+    intercepts.add(new Intercept(w, com, obj, c, a, p, i, adv));
   }
   
-  public void addIntercept(Location w, short[] com, FlagCondition c, byte a, String p, int i, 
+  public void addIntercept(Location w, short[] com, Item obj, FlagCondition c, byte a, String p, int i, 
       Adventure adv) {
     for (int cc=0; cc<com.length; cc++) { 
-      intercepts.add(new Intercept(w, com[cc], c, a, p, i, adv));
+      intercepts.add(new Intercept(w, com[cc], obj, c, a, p, i, adv));
     }
   }
   
@@ -91,15 +92,17 @@ public class CP {
     }
   }
   
-  public boolean findIntercept(Location loc, short command) {
-    boolean proceed = true;
+  public byte findIntercept(Location loc, short command, Item obj) {
+    byte proceed = Intercept.RESULT_NULL;
     for (int i=0; i<intercepts.size(); i++) {
       Location L = intercepts.get(i).getLocation();
       if ((L==null) || (L==loc)) {
         short com = intercepts.get(i).getTriggerCommand();
-        if (com == command) {
+        Item ii = intercepts.get(i).getObjectItem();
+        if ((com == command) && (ii == obj)) {
           byte res = intercepts.get(i).tryExecute();
-          if (res == Intercept.RESULT_FORBID) proceed=false;
+          if (res == Intercept.RESULT_FORBID) proceed=Intercept.RESULT_FORBID;
+          if ((res == Intercept.RESULT_OK) && (proceed==Intercept.RESULT_NULL)) proceed=Intercept.RESULT_OK; 
         
         }
       }
@@ -109,8 +112,9 @@ public class CP {
   
   
   public void execute(short command, Adventure A) {
-    boolean proceed = findIntercept(A.me().location, command);
-    if (proceed) {
+    byte proceed = findIntercept(A.me().location, command, null);
+    System.out.println(proceed);
+    if (proceed!=Intercept.RESULT_FORBID) {
       if (command == GO_EAST) movePlayer(A, Link.DIR_EAST);
       else if (command == GO_WEST) movePlayer(A, Link.DIR_WEST);
       else if (command == GO_NORTH) movePlayer(A, Link.DIR_NORTH);
@@ -126,10 +130,15 @@ public class CP {
   }
   
   public void execute(short command, Item I, Adventure A) {
-    if (command == PICK_UP_ITEM) takeItem(I, A);
-    else if (command == DROP_ITEM) dropItem(I, A);
-    else if (command == EXAMINE_ITEM) examineItem(I, A);
-    
+    byte proceed = findIntercept(A.me().location, command, I);
+    if (proceed!=Intercept.RESULT_FORBID) {
+      if (command == PICK_UP_ITEM) { takeItem(I, A); proceed = Intercept.RESULT_OK; }
+      else if (command == DROP_ITEM) { dropItem(I, A); proceed = Intercept.RESULT_OK; }
+      else if (command == EXAMINE_ITEM) { examineItem(I, A); proceed = Intercept.RESULT_OK; }
+      if (proceed==Intercept.RESULT_NULL) {
+        A.G().echoText("Nothing particular happens.", "#00000");
+      }
+    }
   }
   
   public void takeItem(Item I, Adventure A) {

@@ -10,6 +10,7 @@ public class Item {
   private int weight;
   
   public String getLongName() { return long_name; }
+  public void setLongName(String s) { long_name = s; }
   public int getWeight() { return weight; }
   public String getDetail() { return detail; }
   public String getNames() { return aliases; }
