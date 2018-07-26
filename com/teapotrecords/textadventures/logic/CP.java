@@ -113,7 +113,6 @@ public class CP {
   
   public void execute(short command, Adventure A) {
     byte proceed = findIntercept(A.me().location, command, null);
-    System.out.println(proceed);
     if (proceed!=Intercept.RESULT_FORBID) {
       if (command == GO_EAST) movePlayer(A, Link.DIR_EAST);
       else if (command == GO_WEST) movePlayer(A, Link.DIR_WEST);

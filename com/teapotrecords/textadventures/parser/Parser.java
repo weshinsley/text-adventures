@@ -56,6 +56,7 @@ public class Parser {
       else if (s.equals("OUT")) A.C().execute(CP.GO_OUT, A);
       else if (s.equals("L") || s.equals("LOOK")) A.C().execute(CP.SHOW_ROOM, A);
       else if (s.equals("I") || s.startsWith("INVENT")) A.C().execute(CP.INVENTORY, A);
+      else A.G().echoText("I didn't understand that", "#000000");
     } else {
       
       if ((bits[0].equals("GET")) || (bits[0].equals("TAKE"))) {
@@ -70,7 +71,7 @@ public class Parser {
         A.C().execute(CP.EXAMINE_ITEM, findItem(bits,1), A);
       } else if (bits[0].equals("MOVE") || (bits[0].equals("PUSH"))) {
         A.C().execute(CP.MOVE_ITEM, findItem(bits,1), A);
-      }
+      } else A.G().echoText("I didn't understand that",  "#000000");
     }
   }
   
