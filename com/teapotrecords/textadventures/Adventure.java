@@ -13,6 +13,7 @@ import com.teapotrecords.textadventures.logic.Item;
 import com.teapotrecords.textadventures.logic.Link;
 import com.teapotrecords.textadventures.logic.Location;
 import com.teapotrecords.textadventures.logic.Player;
+import com.teapotrecords.textadventures.logic.UserFlag;
 import com.teapotrecords.textadventures.parser.Parser;
 
 public class Adventure {
@@ -76,17 +77,17 @@ public class Adventure {
     l1.addItem(new Item("BUCKET", "a bucket", "You see nothing special", 5, this));
     l1.addItem(new Item("ROWING BOAT:BOAT", "a rowing boat", "You see nothing special", 150, this));
     
-    Item iPotPlant = new Item("POT-PLANT:POT PLANT:POT:PLANT", "a pot-plant in the doorway", "You don't really want to make eye-contact with this thing, but looking down, you notice 'LEVEL 1' engraved on the pot", 1001, this);
+    Item iPotPlant = new Item("POT-PLANT:POT PLANT:POT:PLANT", "a pot-plant in the doorway", "You don't really want to make eye-contact with this thing, but looking down, you notice 'LEVEL 1' engraved on the pot.", 1001, this);
     addSpecialMessage(1001, "As you reach towards it, the pot-plant's utter silence intimidates you, and you decide against touching it.");
+
     // Room 2;
-    Location l2 = new Location("The Beach", "You are on the beach. All you can see is sand, and gentle rippling waves. Your beach hut is to the North.", this);
+    Location l2 = new Location("The Beach", "You are on a sandy beach, occasionally interrupted by clusters of smooth round rocks, especially to the South. Your beach hut is to the North.", this);
     
     // As you try to move South, the pot plant appears if it hasn't already...
     Link l1l2 = new Link(l2, Link.DIR_SOUTH);
     l1.addLink(l1l2);
-    Flag F_POT_PLANT = Flag.getFlag(this, "F_POT_PLANT", 0);
-    
-    FlagCondition FC_POT_PLANT_0 = new FlagCondition(F_POT_PLANT, FlagCondition.EQUAL, Flag.getFlag(this, "ZERO",0));
+    UserFlag F_POT_PLANT = UserFlag.getUserFlag(this, "F_POT_PLANT", 0);
+    FlagCondition FC_POT_PLANT_0 = new FlagCondition(F_POT_PLANT, FlagCondition.EQUAL, UserFlag.getUserFlag(this, "ZERO",0));
     
     C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, null, FC_POT_PLANT_0,  
         Intercept.PRINT, "A pot-plant suddenly appears, blocking your path.",0,this);
@@ -96,7 +97,7 @@ public class Adventure {
     
         
     FlagCondition FC_POT_PLANT_1 = new FlagCondition(F_POT_PLANT, 
-                                       FlagCondition.EQUAL, Flag.getFlag(this, "ONE",1));
+                                       FlagCondition.EQUAL, 1);
     
     C.addIntercept(l1,  new short[] {CP.GO_SOUTH, CP.GO_OUT},  null, FC_POT_PLANT_1,
         Intercept.PRINT, "The pot-plant stands in your way.", 0, this);
@@ -119,6 +120,19 @@ public class Adventure {
         
     l2.addLink(new Link(l1, Link.DIR_NORTH));
     l2.addLink(new Link(l1, Link.DIR_IN));
+    
+ // Location 3;
+    Location l3 = new Location("The Beach", "You are on a sandy beach. A cluster of smooth rocks is to the South.", this);
+    l2.addLink(new Link(l3, Link.DIR_SOUTH));
+    l3.addLink(new Link(l2, Link.DIR_NORTH));
+    
+    // Locaiton 4:
+    Location l4 = new Location("Rockpools", "You are standing gingerly on a smooth and slightly slippery rock, which together with a few others, forms a rockpool. "+
+                               "The top of a mysterious box pokes out above the surface, guarded by a squadron of crabs, who "+
+                               "snap their pincers slowly and ominously at you.", this);
+    l3.addLink(new Link(l4, Link.DIR_SOUTH));
+    l4.addLink(new Link(l3, Link.DIR_NORTH));
+    
     
     me.setLocation(l1);
     C.roomInfo(this);

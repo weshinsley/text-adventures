@@ -48,7 +48,7 @@ public class Intercept {
   
   public byte tryExecute() {
     byte final_result = RESULT_OK;
-    if (cond.eval()) {
+    if (cond.eval(A)) {
       if (action==PRINT) {
         A.G().echoText(param1, "#000000");
         
@@ -71,9 +71,12 @@ public class Intercept {
       } else if (action==SET_FLAG) {
         ArrayList<Flag> flags = A.flags();
         for (int j=0; j<flags.size(); j++) {
-          if (flags.get(j).getName().equals(param1)) {
-            flags.get(j).setValue(param2);
-            j = flags.size();
+          if (flags.get(j) instanceof UserFlag) {
+            UserFlag uf = (UserFlag) flags.get(j);
+            if (uf.getName().equals(param1)) {
+              uf.setValue(param2);
+              j = flags.size();
+            }
           }
         }
       

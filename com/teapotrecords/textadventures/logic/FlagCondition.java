@@ -1,5 +1,7 @@
 package com.teapotrecords.textadventures.logic;
 
+import com.teapotrecords.textadventures.Adventure;
+
 public class FlagCondition {
   public static final byte EQUAL = 1;
   public static final byte NOT_EQUAL = 2;
@@ -16,15 +18,21 @@ public class FlagCondition {
     flag2 = f2;
     comparator = fc;
   }
-  public boolean eval() {
-    if (comparator==EQUAL) return flag1.getValue() == flag2.getValue();
-    else if (comparator==NOT_EQUAL) return flag1.getValue() != flag2.getValue();
-    else if (comparator==GREATER) return flag1.getValue() > flag2.getValue();
-    else if (comparator==GREATER_EQUAL) return flag1.getValue() >= flag2.getValue();
-    else if (comparator==LESS) return flag1.getValue() < flag2.getValue();
-    else if (comparator==LESS_EQUAL) return flag1.getValue() <= flag2.getValue();
+  
+  public FlagCondition(Flag f1, byte fc, int v) {
+    flag1 = f1;
+    flag2 = new ConstantFlag(v);
+    comparator = fc;
+  }
+
+  public boolean eval(Adventure A) {
+    if (comparator==EQUAL) return flag1.eval(A) == flag2.eval(A);
+    else if (comparator==NOT_EQUAL) return flag1.eval(A) != flag2.eval(A);
+    else if (comparator==GREATER) return flag1.eval(A) > flag2.eval(A);
+    else if (comparator==GREATER_EQUAL) return flag1.eval(A) >= flag2.eval(A);
+    else if (comparator==LESS) return flag1.eval(A) < flag2.eval(A);
+    else if (comparator==LESS_EQUAL) return flag1.eval(A) <= flag2.eval(A);
     else return false; 
   }
-  
   
 }
