@@ -4,11 +4,11 @@ import com.teapotrecords.textadventures.Adventure;
 import com.teapotrecords.textadventures.logic.Item;
 import com.teapotrecords.textadventures.logic.Location;
 
-public class BESpec {
-  public static final int F_PLAYER_IN_LOCATION = 1;
-  public static final int F_ITEM_IN_LOCATION = 2;
-  public static final int F_ITEM_PRESENT = 3;
-  public static final int F_CARRYING_ITEM = 4;
+public class BESpec extends BE {
+  public static final byte F_PLAYER_IN_LOCATION = 1;
+  public static final byte F_ITEM_IN_LOCATION = 2;
+  public static final byte F_ITEM_PRESENT = 3;
+  public static final byte F_CARRYING_ITEM = 4;
   
   Adventure A;
   byte func;

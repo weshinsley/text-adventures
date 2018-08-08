@@ -66,12 +66,19 @@ public class Parser {
       } else if ((bits[0].equals("DROP")) && (bits[1].equals("ALL"))) {
         A.C().execute(CP.DROP_ALL,  A);
       } else if (bits[0].equals("DROP")) {
-        A.C().execute(CP.DROP_ITEM, findItem(bits,1), A);
+        Item I = findItem(bits,1);
+        A.C().execute(CP.DROP_ITEM, I, A);
       } else if ((bits[0].equals("LOOK")) || (bits[0].equals("EXAMINE"))) {
-        A.C().execute(CP.EXAMINE_ITEM, findItem(bits,1), A);
+        Item I = findItem(bits, 1);
+        A.C().execute(CP.EXAMINE_ITEM, I, A);
       } else if (bits[0].equals("MOVE") || (bits[0].equals("PUSH"))) {
-        A.C().execute(CP.MOVE_ITEM, findItem(bits,1), A);
-      } else A.G().echoText("I didn't understand that",  "#000000");
+        Item I = findItem(bits, 1);
+        if (I == null) {
+          A.G().echoText("You can't find that.", "#000000");
+        } else {
+          A.C().execute(CP.MOVE_ITEM, I, A);
+        }
+      } else A.G().echoText("I didn't understand that.",  "#000000");
     }
   }
   

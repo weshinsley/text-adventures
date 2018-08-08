@@ -39,6 +39,21 @@ public class CP {
     }
   }
   
+  public void addIntercept(Location w, short com, Item obj, IC[] ics, Adventure adv) {
+    for (int ic=0; ic<ics.length; ic++) {
+      intercepts.add(new Intercept(w, com, obj, ics[ic].condition, ics[ic].action, ics[ic].param1, ics[ic].param2, adv));
+    }
+  }
+  
+  public void addIntercept(Location w, short[] com, Item obj, IC[] ics, Adventure adv) {
+    for (int cc=0; cc<com.length; cc++) {
+      for (int ic=0; ic<ics.length; ic++) {
+        intercepts.add(new Intercept(w, com[cc], obj, ics[ic].condition, ics[ic].action, ics[ic].param1, ics[ic].param2, adv));
+      }
+    }
+  }
+
+  
   public CP() { }
   
   public void addItemList(StringBuffer sb, ArrayList<Item> is, int count) {

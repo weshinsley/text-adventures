@@ -45,7 +45,7 @@ public class Intercept {
     param1 = p;
     param2 = i;
     A = adv;
-    
+   
   }
   
   public byte tryExecute() {
