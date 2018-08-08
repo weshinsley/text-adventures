@@ -3,6 +3,7 @@ package com.teapotrecords.textadventures.logic;
 import java.util.ArrayList;
 
 import com.teapotrecords.textadventures.Adventure;
+import com.teapotrecords.textadventures.logic.expr.BE;
 // CP = Command Processor, but life's too short to be typing that all over the place.
 public class CP {
   public static final short GO_WEST = 1;
@@ -26,12 +27,12 @@ public class CP {
   public ArrayList<Intercept> getIntercepts() { return intercepts; }
   public void addIntercept(Intercept le) { intercepts.add(le); }
   
-  public void addIntercept(Location w, short com, Item obj, FlagCondition c, byte a, String p, int i, 
+  public void addIntercept(Location w, short com, Item obj, BE c, byte a, String p, int i, 
       Adventure adv) {
     intercepts.add(new Intercept(w, com, obj, c, a, p, i, adv));
   }
   
-  public void addIntercept(Location w, short[] com, Item obj, FlagCondition c, byte a, String p, int i, 
+  public void addIntercept(Location w, short[] com, Item obj, BE c, byte a, String p, int i, 
       Adventure adv) {
     for (int cc=0; cc<com.length; cc++) { 
       intercepts.add(new Intercept(w, com[cc], obj, c, a, p, i, adv));
@@ -40,14 +41,19 @@ public class CP {
   
   public CP() { }
   
-  public void addItemList(StringBuffer sb, ArrayList<Item> is) {
-    int count = is.size();
-    sb.append(is.get(0).getLongName());
-    int i=1;
-    while (i<count) {
-      if (i==count-1) sb.append(" and "+is.get(i).getLongName());
-      else sb.append(", "+is.get(i).getLongName());
-      i++;
+  public void addItemList(StringBuffer sb, ArrayList<Item> is, int count) {
+    int c=0;
+    for (int i=0; i<is.size(); i++) {
+      if (is.get(i).printInList()) {
+        if (c==0) {
+          sb.append(is.get(i).getLongName());
+        } else if (c==count-1) {
+          sb.append(" and "+is.get(i).getLongName());
+        } else {
+          sb.append(", "+is.get(i).getLongName());  
+        } 
+        c++;
+      }
     }
     sb.append(".");
   }
@@ -60,10 +66,13 @@ public class CP {
     StringBuffer sb = new StringBuffer(A.me().getLocation().getDescription());
     
     ArrayList<Item> items = A.me().getLocation().getItems();
-    int count = items.size();
+    int count = 0;
+    for (int i=0; i<items.size(); i++) {
+      if (items.get(i).printInList()) count++;
+    }
     if (count>0) {
       sb.append(" You can see ");
-      addItemList(sb, items);
+      addItemList(sb, items, count);
     }      
     A.G().echoText(sb.toString(), "#000000");
     A.G().echoText("", "#000000");
@@ -87,7 +96,7 @@ public class CP {
       A.G().echoText("You are not carrying anything.", "#000000");
     } else {
       StringBuffer sb = new StringBuffer("You are carring: ");
-      addItemList(sb, items);
+      addItemList(sb, items, items.size());
       A.G().echoText(sb.toString(), "#000000");
     }
   }
@@ -112,7 +121,7 @@ public class CP {
   
   
   public void execute(short command, Adventure A) {
-    byte proceed = findIntercept(A.me().location, command, null);
+    byte proceed = findIntercept(A.me().getLocation(), command, null);
     if (proceed!=Intercept.RESULT_FORBID) {
       if (command == GO_EAST) movePlayer(A, Link.DIR_EAST);
       else if (command == GO_WEST) movePlayer(A, Link.DIR_WEST);
@@ -129,7 +138,7 @@ public class CP {
   }
   
   public void execute(short command, Item I, Adventure A) {
-    byte proceed = findIntercept(A.me().location, command, I);
+    byte proceed = findIntercept(A.me().getLocation(), command, I);
     if (proceed!=Intercept.RESULT_FORBID) {
       if (command == PICK_UP_ITEM) { takeItem(I, A); proceed = Intercept.RESULT_OK; }
       else if (command == DROP_ITEM) { dropItem(I, A); proceed = Intercept.RESULT_OK; }

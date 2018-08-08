@@ -6,7 +6,7 @@ public class Player {
   int id;
   ArrayList<Item> carrying;
   String detail;
-  Location location;
+  private Location location;
   int max_weight;
   
   public Player() {

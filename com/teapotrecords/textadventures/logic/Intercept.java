@@ -3,6 +3,8 @@ package com.teapotrecords.textadventures.logic;
 import java.util.ArrayList;
 
 import com.teapotrecords.textadventures.Adventure;
+import com.teapotrecords.textadventures.logic.expr.BE;
+import com.teapotrecords.textadventures.logic.expr.NEFlag;
 
 public class Intercept {
   
@@ -23,7 +25,7 @@ public class Intercept {
   short onCommand;
   Item objItem;
  
-  FlagCondition cond;
+  BE cond;
   byte action;
   String param1;
   int param2;
@@ -33,7 +35,7 @@ public class Intercept {
   public short getTriggerCommand() { return onCommand; }
   public Item getObjectItem() { return objItem; }
   
-  public Intercept(Location w, short com, Item obj, FlagCondition c, byte a, String p, int i, 
+  public Intercept(Location w, short com, Item obj, BE c, byte a, String p, int i, 
                    Adventure adv) {
     where = w;
     onCommand = com;
@@ -48,7 +50,7 @@ public class Intercept {
   
   public byte tryExecute() {
     byte final_result = RESULT_OK;
-    if (cond.eval(A)) {
+    if (cond.eval()) {
       if (action==PRINT) {
         A.G().echoText(param1, "#000000");
         
@@ -69,14 +71,11 @@ public class Intercept {
         I.setLongName(bits[1]);
                 
       } else if (action==SET_FLAG) {
-        ArrayList<Flag> flags = A.flags();
+        ArrayList<NEFlag> flags = A.flags();
         for (int j=0; j<flags.size(); j++) {
-          if (flags.get(j) instanceof UserFlag) {
-            UserFlag uf = (UserFlag) flags.get(j);
-            if (uf.getName().equals(param1)) {
-              uf.setValue(param2);
-              j = flags.size();
-            }
+          if (flags.get(j).getName().equals(param1)) {
+            flags.get(j).set(param2);
+            j = flags.size();
           }
         }
       
