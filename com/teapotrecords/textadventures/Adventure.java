@@ -97,14 +97,14 @@ public class Adventure {
     // The pot plant puzzle.
     
     NEFlag F_POT_PLANT = new NEFlag("F_POT_PLANT", 0, this);
-    BE FC_POT_PLANT_0 = new BEComp(F_POT_PLANT, BEComp.EQUAL, new NEVal(0));
+    BE FC_POT_PLANT_0 = new BEComp(F_POT_PLANT, BEComp.EQUAL, NE.ZERO);
     
     C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, null, new IC[] {  
         new IC(FC_POT_PLANT_0, Intercept.PRINT, "A pot-plant suddenly appears, blocking your path.",0),
         new IC(FC_POT_PLANT_0, Intercept.ADD_ITEM_TO_ROOM, "POT-PLANT", 0),
         new IC(FC_POT_PLANT_0, Intercept.FORBID_MOVE, null, 0)},this);
             
-    BE FC_POT_PLANT_1 = new BEComp(F_POT_PLANT,BEComp.EQUAL, new NEVal(1));
+    BE FC_POT_PLANT_1 = new BEComp(F_POT_PLANT,BEComp.EQUAL, NE.ONE);
     
     C.addIntercept(l1,  new short[] {CP.GO_SOUTH, CP.GO_OUT},  null, new IC[] {
         new IC(FC_POT_PLANT_1, Intercept.PRINT, "The pot-plant stands in your way.", 0),
@@ -137,11 +137,12 @@ public class Adventure {
     // The Crab Puzzle
     
     Item iCrabs = new Item("CRABS", "", "They look angry.", 10, false, this);
+    Item iBox = new Item("BOX:MYSTERIOUS BOX","","It is too mysterious to describe.", 1001, false, this);
 
     l4.addItem(iCrabs);
     
     C.addIntercept(l4, CP.DROP_ITEM, iBucket, new IC[] {
-      new IC(BE.TRUE, Intercept.PRINT, "The bucket slips onto its side on the slippery rock", 0)
+      new IC(BE.TRUE, Intercept.PRINT, "The bucket slips onto its side on the slippery rock.", 0)
     },this);
     
     BE only_net = new BEComb(
@@ -161,7 +162,7 @@ public class Adventure {
       new IC(net_plus, Intercept.FORBID_MOVE, "", 0),
       new IC(no_net, Intercept.PRINT, "With your bare hands? No, I don't think so.",0),
       new IC(no_net, Intercept.FORBID_MOVE, "", 0),
-      new IC(only_net, Intercept.PRINT, "With admirable skill and concentration, you catch the menacing crabs in the net",0)
+      new IC(only_net, Intercept.PRINT, "With admirable skill and concentration, you catch the menacing crabs in the net.",0)
       
     },this);
     

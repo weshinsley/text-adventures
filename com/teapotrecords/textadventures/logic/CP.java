@@ -110,7 +110,7 @@ public class CP {
     if (count==0) {
       A.G().echoText("You are not carrying anything.", "#000000");
     } else {
-      StringBuffer sb = new StringBuffer("You are carring: ");
+      StringBuffer sb = new StringBuffer("You are carrying: ");
       addItemList(sb, items, items.size());
       A.G().echoText(sb.toString(), "#000000");
     }
