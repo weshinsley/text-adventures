@@ -6,6 +6,7 @@ import javax.swing.SwingUtilities;
 
 import com.teapotrecords.textadventures.gui.Gui;
 import com.teapotrecords.textadventures.logic.CP;
+import com.teapotrecords.textadventures.logic.IA;
 import com.teapotrecords.textadventures.logic.IC;
 import com.teapotrecords.textadventures.logic.Intercept;
 import com.teapotrecords.textadventures.logic.Item;
@@ -20,7 +21,6 @@ import com.teapotrecords.textadventures.logic.expr.BESpec;
 import com.teapotrecords.textadventures.logic.expr.NE;
 import com.teapotrecords.textadventures.logic.expr.NEFlag;
 import com.teapotrecords.textadventures.logic.expr.NESpec;
-import com.teapotrecords.textadventures.logic.expr.NEVal;
 import com.teapotrecords.textadventures.parser.Parser;
 
 public class Adventure {
@@ -96,27 +96,27 @@ public class Adventure {
 
     // The pot plant puzzle.
     
-    NEFlag F_POT_PLANT = new NEFlag("F_POT_PLANT", 0, this);
+    NEFlag F_POT_PLANT = new NEFlag(0, this);
     BE FC_POT_PLANT_0 = new BEComp(F_POT_PLANT, BEComp.EQUAL, NE.ZERO);
     
-    C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, null, new IC[] {  
-        new IC(FC_POT_PLANT_0, Intercept.PRINT, "A pot-plant suddenly appears, blocking your path.",0),
-        new IC(FC_POT_PLANT_0, Intercept.ADD_ITEM_TO_ROOM, "POT-PLANT", 0),
-        new IC(FC_POT_PLANT_0, Intercept.FORBID_MOVE, null, 0)},this);
+    C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, null, new IC(FC_POT_PLANT_0, new IA[] { 
+        new IA(Intercept.PRINT, "A pot-plant suddenly appears, blocking your path."),
+        new IA(Intercept.ADD_ITEM_HERE, iPotPlant),
+        new IA(Intercept.FORBID_MOVE)}),this);
             
     BE FC_POT_PLANT_1 = new BEComp(F_POT_PLANT,BEComp.EQUAL, NE.ONE);
     
-    C.addIntercept(l1,  new short[] {CP.GO_SOUTH, CP.GO_OUT},  null, new IC[] {
-        new IC(FC_POT_PLANT_1, Intercept.PRINT, "The pot-plant stands in your way.", 0),
-        new IC(FC_POT_PLANT_1, Intercept.PRINT_SEQUENCE, "It maintains a stony silence.:It does absolutely nothing. Menacingly.:It waits, unmoved, not even looking at you.",0),
-        new IC(FC_POT_PLANT_1, Intercept.FORBID_MOVE, "", 0)}, this);
+    C.addIntercept(l1,  new short[] {CP.GO_SOUTH, CP.GO_OUT},  null, new IC(FC_POT_PLANT_1, new IA[] {
+        new IA(Intercept.PRINT, "The pot-plant stands in your way."),
+        new IA(Intercept.PRINT_SEQUENCE, "It maintains a stony silence.:It does absolutely nothing. Menacingly.:It waits, unmoved, not even looking at you."),
+        new IA(Intercept.FORBID_MOVE)}), this);
         
-    C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, null, FC_POT_PLANT_0, Intercept.SET_FLAG, "F_POT_PLANT", 1, this);
+    C.addIntercept(l1, new short[] {CP.GO_SOUTH, CP.GO_OUT}, null, FC_POT_PLANT_0, Intercept.SET_FLAG, F_POT_PLANT, 1, this);
     
-    C.addIntercept(l1, new short[] {CP.MOVE_ITEM}, iPotPlant, new IC[] {
-        new IC(FC_POT_PLANT_1, Intercept.PRINT, "You cautiously prod the base, and the pot-plant is moved. (Deeply). The doorway is now available.", 0),
-        new IC(FC_POT_PLANT_1, Intercept.CHANGE_ITEM_DESCRIPTION, "POT-PLANT:a pot-plant beside the doorway", 0),
-        new IC(FC_POT_PLANT_1, Intercept.SET_FLAG, "F_POT_PLANT", 2)}, this);
+    C.addIntercept(l1, new short[] {CP.MOVE_ITEM}, iPotPlant, new IC(FC_POT_PLANT_1, new IA[] {
+        new IA(Intercept.PRINT, "You cautiously prod the base, and the pot-plant is moved. (Deeply). The doorway is now available."),
+        new IA(Intercept.CHANGE_ITEM_DESCRIPTION, iPotPlant, "a pot-plant beside the doorway"),
+        new IA(Intercept.SET_FLAG, F_POT_PLANT, 2)}), this);
     
        
     l2.addLink(new Link(l1, Link.DIR_NORTH));
@@ -140,36 +140,67 @@ public class Adventure {
     Item iBox = new Item("BOX:MYSTERIOUS BOX","","It is too mysterious to describe.", 1001, false, this);
 
     l4.addItem(iCrabs);
+        
+    C.addIntercept(l4, CP.DROP_ITEM, iBucket, new IC(BE.TRUE, new IA[] {
+        new IA(Intercept.PRINT, "The bucket slips onto its side on the slippery rock."),
+        new IA(Intercept.NO_EXTRA_ECHO)}),this);
     
-    C.addIntercept(l4, CP.DROP_ITEM, iBucket, new IC[] {
-      new IC(BE.TRUE, Intercept.PRINT, "The bucket slips onto its side on the slippery rock.", 0)
-    },this);
     
-    BE only_net = new BEComb(
-        new BESpec(BESpec.F_CARRYING_ITEM, iNet, null, this), 
-        BEComb.AND,
-        new BEComp(new NESpec(NESpec.F_COUNT_ITEMS_CARRIED, this), BEComp.EQUAL, NE.ONE));
+    BE only_net = new BEComb(new BESpec(BESpec.F_CARRYING_ITEM, iNet, this), BEComb.AND, new BEComp(new NESpec(NESpec.F_COUNT_ITEMS_CARRIED, this), BEComp.EQUAL, NE.ONE));
+    BE net_plus = new BEComb(new BESpec(BESpec.F_CARRYING_ITEM, iNet, this), BEComb.AND, new BEComp(new NESpec(NESpec.F_COUNT_ITEMS_CARRIED, this), BEComp.GREATER, NE.ONE));
+    BE no_net = new BEInv(new BESpec(BESpec.F_CARRYING_ITEM, iNet, this)); 
     
-    BE net_plus = new BEComb(
-        new BESpec(BESpec.F_CARRYING_ITEM, iNet, null, this), 
-        BEComb.AND,
-        new BEComp(new NESpec(NESpec.F_COUNT_ITEMS_CARRIED, this), BEComp.GREATER, NE.ONE));
+    BE crabs_dropable = new BEComb( new BESpec(BESpec.F_ITEM_PRESENT, iBucket, this), BEComb.AND, new BESpec(BESpec.F_PLAYER_NOT_IN_LOCATION, l4, this));
+    BE crabs_undropable = new BEInv(crabs_dropable);
     
-    BE no_net = new BEInv(new BESpec(BESpec.F_CARRYING_ITEM, iNet, null, this)); 
+    Item iNetCrabs = new Item("NET OF CRABS:NET", "a fishing net bulging with angry crabs", "The net pulsates with wriggling crustaceans, and it takes all your strength to keep them under control.", 5, true, this);
+    BE got_crabs = new BESpec(BESpec.F_CARRYING_ITEM, iNetCrabs, this); 
+    
+    C.addIntercept(null, new short[] {CP.EXAMINE_ITEM, CP.PICK_UP_ITEM}, null, new IC(got_crabs, new IA[] {
+        new IA(Intercept.PRINT, "As you try, the crabs wrestle free and escape from the fishing net."),
+        new IA(Intercept.FORBID_MOVE),
+        new IA(Intercept.REMOVE_ITEM_PLAYER, iCrabs),
+        new IA(Intercept.ADD_ITEM_TO_ROOM, l4, iCrabs),
+        new IA(Intercept.REMOVE_ITEM_PLAYER, iNetCrabs),
+        new IA(Intercept.REMOVE_ITEM_PLAYER, iCrabs),        
+        new IA(Intercept.ADD_ITEM_PLAYER, iNet)}),this);
     
     C.addIntercept(l4, new short[] {CP.PICK_UP_ITEM}, iCrabs, new IC[] {
-      new IC(net_plus, Intercept.PRINT, "The crabs are too quick, and evade you. They snap their pincers mockingly.",0),
-      new IC(net_plus, Intercept.FORBID_MOVE, "", 0),
-      new IC(no_net, Intercept.PRINT, "With your bare hands? No, I don't think so.",0),
-      new IC(no_net, Intercept.FORBID_MOVE, "", 0),
-      new IC(only_net, Intercept.PRINT, "With admirable skill and concentration, you catch the menacing crabs in the net.",0)
-      
+      new IC(net_plus, new IA[] {
+         new IA(Intercept.PRINT, "The crabs are too quick, and evade you. They snap their pincers mockingly."),
+         new IA(Intercept.FORBID_MOVE)}),
+      new IC(no_net, new IA[] {
+          new IA(Intercept.PRINT, "With your bare hands? No, I don't think so."),
+          new IA(Intercept.FORBID_MOVE)}),
+      new IC(only_net, new IA[] {
+          new IA(Intercept.NO_EXTRA_ECHO),
+          new IA(Intercept.FORBID_MOVE),          
+          new IA(Intercept.PRINT, "With admirable skill and concentration, you catch the menacing crabs in the net."),
+          new IA(Intercept.REMOVE_ITEM_PLAYER, iNet),
+          new IA(Intercept.ADD_ITEM_PLAYER, iNetCrabs),
+          new IA(Intercept.ADD_ITEM_PLAYER, iCrabs)})
     },this);
+      
+    Item iBucketCrabs = new Item("BUCKET OF CRABS:BUCKET","a bucket of angry crabs","It's a bucket of angry crabs. What more can I say?",15,true,this);
     
-        
-//    C.addIntercept(l4, new short[] {CP.PICK_UP_ITEM}, iCrabs, fc_gotNet);
-    
-//    C.addIntercept(l4, new short[] {CP.PICK_UP_ITEM}, iCrabs, null, );
+    C.addIntercept(null, new short[] {CP.DROP_ITEM}, iCrabs, new IC[] {
+        new IC(crabs_undropable, new IA[] {
+            new IA(Intercept.NO_EXTRA_ECHO),
+            new IA(Intercept.FORBID_MOVE),
+            new IA(Intercept.PRINT, "The crabs scuttle away."),
+            new IA(Intercept.REMOVE_ITEM_PLAYER, iCrabs),
+            new IA(Intercept.ADD_ITEM_TO_ROOM, l4, iCrabs),
+            new IA(Intercept.REMOVE_ITEM_PLAYER, iNetCrabs),
+            new IA(Intercept.ADD_ITEM_PLAYER, iNet)}),
+        new IC(crabs_dropable, new IA[] {
+            new IA(Intercept.NO_EXTRA_ECHO),
+            new IA(Intercept.FORBID_MOVE),
+            new IA(Intercept.PRINT, "You drop the crabs into the bucket. They try to climb out, but it's too steep."),
+            new IA(Intercept.ADD_ITEM_HERE, iBucketCrabs),
+            new IA(Intercept.REMOVE_ITEM_PLAYER, iCrabs),
+            new IA(Intercept.REMOVE_ITEM_PLAYER, iNetCrabs),
+            new IA(Intercept.ADD_ITEM_PLAYER, iNet),
+            new IA(Intercept.REMOVE_ITEM_HERE, iBucket)})}, this);
     
     
     me.setLocation(l1);

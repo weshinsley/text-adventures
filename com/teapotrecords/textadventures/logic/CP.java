@@ -23,36 +23,54 @@ public class CP {
   public static final short DROP_ALL = 14;
   public static final short MOVE_ITEM = 15;
   
+  public boolean repress_trivial_response = false;
+  public void clear_rtr() { repress_trivial_response = false; }
+  public void set_rtr() { repress_trivial_response = true; }
+  
   private ArrayList<Intercept> intercepts = new ArrayList<Intercept>();
   public ArrayList<Intercept> getIntercepts() { return intercepts; }
   public void addIntercept(Intercept le) { intercepts.add(le); }
   
-  public void addIntercept(Location w, short com, Item obj, BE c, byte a, String p, int i, 
-      Adventure adv) {
-    intercepts.add(new Intercept(w, com, obj, c, a, p, i, adv));
-  }
-  
-  public void addIntercept(Location w, short[] com, Item obj, BE c, byte a, String p, int i, 
-      Adventure adv) {
-    for (int cc=0; cc<com.length; cc++) { 
-      intercepts.add(new Intercept(w, com[cc], obj, c, a, p, i, adv));
-    }
-  }
-  
-  public void addIntercept(Location w, short com, Item obj, IC[] ics, Adventure adv) {
-    for (int ic=0; ic<ics.length; ic++) {
-      intercepts.add(new Intercept(w, com, obj, ics[ic].condition, ics[ic].action, ics[ic].param1, ics[ic].param2, adv));
-    }
-  }
-  
-  public void addIntercept(Location w, short[] com, Item obj, IC[] ics, Adventure adv) {
-    for (int cc=0; cc<com.length; cc++) {
-      for (int ic=0; ic<ics.length; ic++) {
-        intercepts.add(new Intercept(w, com[cc], obj, ics[ic].condition, ics[ic].action, ics[ic].param1, ics[ic].param2, adv));
-      }
-    }
+  public void addIntercept(Location w, short com, Item obj, IC[] a, Adventure adv) {
+    intercepts.add(new Intercept(w, com, obj, a, adv));
   }
 
+  public void addIntercept(Location w, short com, Item obj, IC a, Adventure adv) {
+    addIntercept(w, com, obj, new IC[] {a}, adv);
+  }
+
+  public void addIntercept(Location w, short com[], Item obj, IC a, Adventure adv) {
+    for (int cc=0; cc<com.length; cc++) addIntercept(w, com[cc], obj, new IC[] {a}, adv);
+  }
+  
+  public void addIntercept(Location w, short com[], Item obj, IC[] a, Adventure adv) {
+    for (int cc=0; cc<com.length; cc++) addIntercept(w, com[cc], obj, a, adv);
+  }
+  
+  public void addIntercept(Location w, short com, Item obj, BE c, byte cmd, Object p1, Object p2, Adventure adv) {
+    addIntercept(w, com, obj, new IC(c, new IA(cmd,p1,p2)),adv);
+  }
+  
+  public void addIntercept(Location w, short com, Item obj, BE c, byte cmd, Object p1, Adventure adv) {
+    addIntercept(w, com, obj, new IC(c, new IA(cmd,p1)),adv);
+  }
+  
+  public void addIntercept(Location w, short com, Item obj, BE c, byte cmd, Adventure adv) {
+    addIntercept(w, com, obj, new IC(c, new IA(cmd)),adv);
+  }
+
+  public void addIntercept(Location w, short[] com, Item obj, BE c, byte cmd, Object p1, Object p2, Adventure adv) {
+    for (int cc=0; cc<com.length; cc++) addIntercept(w, com[cc], obj, new IC(c, new IA(cmd,p1,p2)),adv);
+  }
+  
+  public void addIntercept(Location w, short[] com, Item obj, BE c, byte cmd, Object p1, Adventure adv) {
+    for (int cc=0; cc<com.length; cc++) addIntercept(w, com[cc], obj, new IC(c, new IA(cmd,p1)),adv);
+  }
+  
+  public void addIntercept(Location w, short[] com, Item obj, BE c, byte cmd, Adventure adv) {
+    for (int cc=0; cc<com.length; cc++) addIntercept(w, com[cc], obj, new IC(c, new IA(cmd)),adv);
+  }
+  
   
   public CP() { }
   
@@ -123,9 +141,9 @@ public class CP {
       if ((L==null) || (L==loc)) {
         short com = intercepts.get(i).getTriggerCommand();
         Item ii = intercepts.get(i).getObjectItem();
-        if ((com == command) && (ii == obj)) {
+        if ((com == command) && ((ii == obj) || (ii == null))) {
           byte res = intercepts.get(i).tryExecute();
-          if (res == Intercept.RESULT_FORBID) proceed=Intercept.RESULT_FORBID;
+          if (res == Intercept.RESULT_FORBID) proceed = Intercept.RESULT_FORBID;
           if ((res == Intercept.RESULT_OK) && (proceed==Intercept.RESULT_NULL)) proceed=Intercept.RESULT_OK; 
         
         }
@@ -174,9 +192,11 @@ public class CP {
     } else if (A.me().weightCarried()+I.getWeight() > A.me().max_weight) {
       A.G().echoText("That is too much to carry.", "#000000");
     } else {
+      System.out.println("CP:195");
       A.me().carry(I);
       A.me().getLocation().removeItem(I);
-      A.G().echoText("Taken.", "#000000");
+      if (!repress_trivial_response) A.G().echoText("Taken.", "#000000");
+      System.out.println(A.me().carrying().size());
 
     }
   }
@@ -187,7 +207,7 @@ public class CP {
     } else {
       A.me().drop(I);
       A.me().getLocation().addItem(I);
-      A.G().echoText("Dropped.", "#000000");
+      if (!repress_trivial_response) A.G().echoText("Dropped.", "#000000");
     }
   }
   

@@ -44,6 +44,7 @@ public class Parser {
   
   
   public void process(String s) {
+    A.C().clear_rtr();
     String[] bits = s.trim().toUpperCase().split("\\s+");
     if (bits.length==1) {
       if (s.equals("E") || s.equals("EAST")) A.C().execute(CP.GO_EAST, A);
