@@ -15,8 +15,8 @@ public class Player {
   public void setLocation(Location L) { location = L; }
   public Location getLocation() { return location; }
   public ArrayList<Item> carrying() { return carrying; }
-  public void carry(Item I) { System.out.println("Carry "+I.getLongName()); carrying.add(I); }
-  public void drop(Item I) { carrying.remove(I); System.out.println("Drop "+I.getLongName());}
+  public void carry(Item I) { carrying.add(I); }
+  public void drop(Item I) { carrying.remove(I); }
   
   public int weightCarried() {
     int total=0;

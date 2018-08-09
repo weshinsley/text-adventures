@@ -22,6 +22,8 @@ public class CP {
   public static final short INVENTORY = 13;
   public static final short DROP_ALL = 14;
   public static final short MOVE_ITEM = 15;
+  public static final short OPEN_ITEM = 16;
+  public static final short READ_ITEM = 17;
   
   public boolean repress_trivial_response = false;
   public void clear_rtr() { repress_trivial_response = false; }
@@ -192,11 +194,9 @@ public class CP {
     } else if (A.me().weightCarried()+I.getWeight() > A.me().max_weight) {
       A.G().echoText("That is too much to carry.", "#000000");
     } else {
-      System.out.println("CP:195");
       A.me().carry(I);
       A.me().getLocation().removeItem(I);
       if (!repress_trivial_response) A.G().echoText("Taken.", "#000000");
-      System.out.println(A.me().carrying().size());
 
     }
   }

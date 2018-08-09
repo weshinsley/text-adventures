@@ -78,9 +78,7 @@ public class Intercept {
             ((Location)actions[a].commands[c].param1).addItem((Item)actions[a].commands[c].param2);
 
           } else if (actions[a].commands[c].command==ADD_ITEM_PLAYER) {
-            System.out.println("I:81");
             A.me().carry((Item)actions[a].commands[c].param1);
-            System.out.println(A.me().carrying().size());
 
           } else if (actions[a].commands[c].command==REMOVE_ITEM_HERE) {
             A.me().getLocation().removeItem((Item)actions[a].commands[c].param1);
@@ -90,7 +88,6 @@ public class Intercept {
         
           } else if (actions[a].commands[c].command==REMOVE_ITEM_PLAYER) {
             A.me().drop((Item)actions[a].commands[c].param1);
-            System.out.println(A.me().carrying().size());
          
           } else if (actions[a].commands[c].command==FORBID_MOVE) {
             final_result = RESULT_FORBID;

@@ -72,6 +72,12 @@ public class Parser {
       } else if ((bits[0].equals("LOOK")) || (bits[0].equals("EXAMINE"))) {
         Item I = findItem(bits, 1);
         A.C().execute(CP.EXAMINE_ITEM, I, A);
+      } else if ((bits[0].equals("OPEN"))) { 
+        Item I = findItem(bits, 1);
+        A.C().execute(CP.OPEN_ITEM, I, A);
+      } else if ((bits[0].equals("READ"))) { 
+        Item I = findItem(bits, 1);
+        A.C().execute(CP.READ_ITEM, I, A);
       } else if (bits[0].equals("MOVE") || (bits[0].equals("PUSH"))) {
         Item I = findItem(bits, 1);
         if (I == null) {
