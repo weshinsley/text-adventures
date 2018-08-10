@@ -217,10 +217,10 @@ public class CP {
     } else {
       while (A.me().carrying().size()>0) {
         Item I = A.me().carrying().get(0);
-        A.me().drop(I);
-        A.me().getLocation().addItem(I);
+        set_rtr();
+        execute(CP.DROP_ITEM, I, A);
       }
-      A.G().echoText("Dropped everything.", "#000000");
+      A.G().echoText("Your hands are now empty.", "#000000");
     }
   }
 

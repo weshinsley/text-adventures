@@ -133,11 +133,13 @@ public class Adventure {
     // The Crab Puzzle
     
     NEFlag F_GOT_CRABS = new NEFlag(0, this);
+    
     Location l4 = new Location("Rockpools", "You are standing gingerly on a smooth and slightly slippery rock, which together with a few others, forms a rockpool. "+
                                "The top of a mysterious box pokes out above the surface, guarded by a squadron of crabs, who "+
                                "snap their pincers slowly and meaningfully at you.:You are standing gingerly on a smooth and "+
                                "slightly slippery rock, which together with a few others, forms a rockpool. The top of a mysterious "+
                                "box pokes out above the surface.", F_GOT_CRABS, this);
+    
     l3.addLink(new Link(l4, Link.DIR_SOUTH));
     l4.addLink(new Link(l3, Link.DIR_NORTH));
     
@@ -156,7 +158,7 @@ public class Adventure {
     BE net_plus = new BEComb(new BESpec(BESpec.F_CARRYING, iNet, this), BEComb.AND, new BEComp(new NESpec(NESpec.F_COUNT_ITEMS_CARRIED, this), BEComp.GREATER, NE.ONE));
     BE no_net = new BEInv(new BESpec(BESpec.F_CARRYING, iNet, this)); 
     
-    BE crabs_dropable = new BEComb( new BESpec(BESpec.F_ITEM_PRESENT, iBucket, this), BEComb.AND, new BESpec(BESpec.F_PLAYER_NOT_IN_LOCATION, l4, this));
+    BE crabs_dropable = new BEComb(new BESpec(BESpec.F_ITEM_PRESENT, iBucket, this), BEComb.AND, new BESpec(BESpec.F_PLAYER_NOT_IN_LOCATION, l4, this));
     BE crabs_undropable = new BEInv(crabs_dropable);
     
     Item iNetCrabs = new Item("NET OF CRABS:NET", "a fishing net bulging with angry crabs", "The net pulsates with wriggling crustaceans, and it takes all your strength to keep them under control.", 5, true, this);
@@ -169,8 +171,6 @@ public class Adventure {
         new IA(Intercept.REMOVE_ITEM_PLAYER, iCrabs),
         new IA(Intercept.ADD_ITEM_TO_ROOM, l4, iCrabs),
         new IA(Intercept.REMOVE_ITEM_PLAYER, iNetCrabs),
-        new IA(Intercept.REMOVE_ITEM_PLAYER, iCrabs),
-        
         new IA(Intercept.ADD_ITEM_PLAYER, iNet)}),this);
     
     C.addIntercept(l4, new short[] {CP.PICK_UP_ITEM}, iCrabs, new IC[] {
@@ -186,18 +186,29 @@ public class Adventure {
           new IA(Intercept.PRINT, "With admirable skill and concentration, you catch the menacing crabs in the net."),
           new IA(Intercept.SET_FLAG, F_GOT_CRABS, 1),
           new IA(Intercept.REMOVE_ITEM_PLAYER, iNet),
+          new IA(Intercept.REMOVE_ITEM_HERE, iCrabs),
           new IA(Intercept.ADD_ITEM_PLAYER, iNetCrabs),
           new IA(Intercept.ADD_ITEM_PLAYER, iCrabs)})
     },this);
       
     Item iBucketCrabs = new Item("BUCKET OF CRABS:BUCKET","a bucket of angry crabs","It's a bucket of angry crabs. What more can I say?",15,true,this);
     
+    C.addIntercept(null, new short[] {CP.DROP_ITEM}, iNetCrabs, new IC(BE.TRUE, new IA[] {
+        new IA(Intercept.NO_EXTRA_ECHO),
+        new IA(Intercept.FORBID_MOVE),
+        new IA(Intercept.PRINT, "The crabs scuttle away."),
+        new IA(Intercept.SET_FLAG, F_GOT_CRABS, 0),            
+        new IA(Intercept.REMOVE_ITEM_PLAYER, iCrabs),
+        new IA(Intercept.ADD_ITEM_TO_ROOM, l4, iCrabs),
+        new IA(Intercept.REMOVE_ITEM_PLAYER, iNetCrabs),
+        new IA(Intercept.ADD_ITEM_HERE, iNet)}), this);
+    
     C.addIntercept(null, new short[] {CP.DROP_ITEM}, iCrabs, new IC[] {
         new IC(crabs_undropable, new IA[] {
             new IA(Intercept.NO_EXTRA_ECHO),
             new IA(Intercept.FORBID_MOVE),
             new IA(Intercept.PRINT, "The crabs scuttle away."),
-            new IA(Intercept.SET_FLAG, F_GOT_CRABS, 1),            
+            new IA(Intercept.SET_FLAG, F_GOT_CRABS, 0),            
             new IA(Intercept.REMOVE_ITEM_PLAYER, iCrabs),
             new IA(Intercept.ADD_ITEM_TO_ROOM, l4, iCrabs),
             new IA(Intercept.REMOVE_ITEM_PLAYER, iNetCrabs),
@@ -211,8 +222,7 @@ public class Adventure {
             new IA(Intercept.REMOVE_ITEM_PLAYER, iNetCrabs),
             new IA(Intercept.ADD_ITEM_PLAYER, iNet),
             new IA(Intercept.REMOVE_ITEM_HERE, iBucket)})}, this);
-    
-    
+        
     //  Can we get to the box?
     
     BE get_to_box = new BEComb(
@@ -232,6 +242,11 @@ public class Adventure {
     Item iLetter = new Item("LETTER", "a small letter", "It looks worth reading.",0, true, this);
     
     C.addIntercept(l4, new short[] {CP.OPEN_ITEM}, iBox, new IC(
+        new BEComb(get_to_box, BEComb.AND, new BEComp(got_letter, BEComp.EQUAL, NE.ONE)),
+        new IA[] {
+          new IA(Intercept.PRINT, "The mysterious box is mysteriously empty.")}),this);
+    
+    C.addIntercept(l4, new short[] {CP.OPEN_ITEM}, iBox, new IC(
         new BEComb(get_to_box, BEComb.AND, new BEComp(got_letter, BEComp.EQUAL, NE.ZERO)),
         new IA[] {
           new IA(Intercept.FORBID_MOVE),
@@ -239,10 +254,6 @@ public class Adventure {
           new IA(Intercept.ADD_ITEM_PLAYER, iLetter),
           new IA(Intercept.SET_FLAG, got_letter, 1)}), this);
     
-    C.addIntercept(l4, new short[] {CP.OPEN_ITEM}, iBox, new IC(
-        new BEComb(get_to_box, BEComb.AND, new BEComp(got_letter, BEComp.EQUAL, NE.ONE)),
-        new IA[] {
-          new IA(Intercept.PRINT, "The mysterious box is mysteriously empty.")}),this);
           
     
     C.addIntercept(null, new short[] {CP.READ_ITEM}, iLetter, new IC(new BESpec(BESpec.F_CARRYING, iLetter, this),
@@ -251,9 +262,6 @@ public class Adventure {
            "? ")
         }),this);
     
-   
-        
-
     // Init.
     
     me.setLocation(l1);
